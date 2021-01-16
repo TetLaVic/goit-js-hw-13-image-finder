@@ -2,11 +2,11 @@ import template from './template.hbs';
 import './styles.css';
 import ApiService from './apiService.js';
 import LoadMoreBtn from './loadMoreBtn.js';
+import notifications from './pnotify.js';
 
 const refs = {
   form: document.getElementById('search-form'),
   gallery: document.querySelector('.gallery'),
-  // btnLoadMore: document.querySelector('button[data-action="load-more"]'),
 };
 
 const loadMoreBtn = new LoadMoreBtn({
@@ -16,9 +16,13 @@ const loadMoreBtn = new LoadMoreBtn({
 const newApiService = new ApiService();
 
 refs.form.addEventListener('submit', onSearch);
-loadMoreBtn.refs.button.addEventListener('click', fetchImages);
-
-console.log(loadMoreBtn);
+loadMoreBtn.refs.button.addEventListener('click', () => {
+  fetchImages(),
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+});
 
 function onSearch(event) {
   event.preventDefault();
@@ -27,14 +31,13 @@ function onSearch(event) {
   newApiService.resetPage();
   loadMoreBtn.show();
   fetchImages();
-
-  // fetch(queryUrl)
-  //   .then(response => response.json())
-  //   .then(({ hits }) => createImgCardMarkup(hits))
-  //   .then(markup => populateList(markup));
 }
 
 function createImgCardMarkup(items) {
+  if (items.length === 0) {
+    notifications.onError();
+  }
+
   const galleryMarkup = items.map(item => template(item)).join('');
   return galleryMarkup;
 }
