@@ -16,13 +16,7 @@ const loadMoreBtn = new LoadMoreBtn({
 const newApiService = new ApiService();
 
 refs.form.addEventListener('submit', onSearch);
-loadMoreBtn.refs.button.addEventListener('click', () => {
-  fetchImages(),
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
-    });
-});
+loadMoreBtn.refs.button.addEventListener('click', fetchImages);
 
 function onSearch(event) {
   event.preventDefault();
@@ -38,6 +32,10 @@ function createImgCardMarkup(items) {
     notifications.onError();
   }
 
+  if (items.length < newApiService.perPage) {
+    loadMoreBtn.hide();
+  }
+
   const galleryMarkup = items.map(item => template(item)).join('');
   return galleryMarkup;
 }
@@ -51,10 +49,15 @@ function clearList() {
 }
 
 function fetchImages() {
-  loadMoreBtn.disable();
   newApiService
     .fetchImages()
-    .then(createImgCardMarkup)
     .then(loadMoreBtn.enable())
-    .then(populateList);
+    .then(createImgCardMarkup)
+    .then(populateList)
+    .then(
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
+      }),
+    );
 }
