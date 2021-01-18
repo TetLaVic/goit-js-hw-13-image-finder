@@ -49,15 +49,13 @@ function clearList() {
 }
 
 function fetchImages() {
-  newApiService
-    .fetchImages()
-    .then(loadMoreBtn.enable())
-    .then(createImgCardMarkup)
-    .then(populateList)
-    .then(
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth',
-      }),
-    );
+  newApiService.fetchImages().then(images => {
+    loadMoreBtn.enable();
+    const imgListMarkup = createImgCardMarkup(images);
+    populateList(imgListMarkup);
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  });
 }
